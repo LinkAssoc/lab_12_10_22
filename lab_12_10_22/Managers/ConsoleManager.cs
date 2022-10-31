@@ -12,6 +12,8 @@ namespace lab_12_10_22.Managers
     public static class ConsoleManager
     {
         public static DirectoryInfo CurrentDirectory { get; set; } = new DirectoryInfo(Environment.CurrentDirectory);
+        public static List<string> CommandsHistory { get; set; } = new List<string>();
+        public static int CommandsIndex { get; set; } = -1;
 
         public static void Print(string input = "")
         {
@@ -72,6 +74,8 @@ namespace lab_12_10_22.Managers
                     }
                     else if (readKeyResult.Key == ConsoleKey.Enter)
                     {
+                        CommandsHistory.Add(inputString);
+                        CommandsIndex = CommandsHistory.Count - 1;
                         Console.WriteLine();
                         break;
                     }
@@ -84,6 +88,24 @@ namespace lab_12_10_22.Managers
                             Console.Write(' ');
                             Console.Write(readKeyResult.KeyChar);
                             currentIndex--;
+                        }
+                    }
+                    else if (readKeyResult.Key == ConsoleKey.UpArrow)
+                    {
+                        if (CommandsIndex > 0 && CommandsHistory.Count >= CommandsIndex)
+                        {
+                            inputString = CommandsHistoryUp(inputString, ref currentIndex);
+                            Console.WriteLine();
+                            Print(inputString);
+                        }
+                    }
+                    else if (readKeyResult.Key == ConsoleKey.DownArrow)
+                    {
+                        if (CommandsIndex > 0 && CommandsHistory.Count >= CommandsIndex + 2)
+                        {
+                            inputString = CommandsHistoryDown(inputString, ref currentIndex);
+                            Console.WriteLine();
+                            Print(inputString);
                         }
                     }
                     else
@@ -223,6 +245,22 @@ namespace lab_12_10_22.Managers
         public static void PrintFileInfo(FileInfo fi)
         {
             Console.WriteLine("{0,0}{1,40}{2,20}{3,20}", "(FILE)", fi.Name, fi.CreationTime, SizeHelper.FormatSize(fi.Length));
+        }
+
+        public static string CommandsHistoryUp(string input, ref int currentIndex)
+        {
+            CommandsIndex--;
+            input = CommandsHistory[CommandsIndex];
+            currentIndex = input.Length;
+            return input;
+        }
+
+        public static string CommandsHistoryDown(string input, ref int currentIndex)
+        {
+            CommandsIndex++;
+            input = CommandsHistory[CommandsIndex];
+            currentIndex = input.Length;
+            return input;
         }
     }
 }

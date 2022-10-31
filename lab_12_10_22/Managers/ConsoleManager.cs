@@ -45,9 +45,9 @@ namespace lab_12_10_22.Managers
             Console.WriteLine("touch [path to file] - Создать файл");
             Console.WriteLine("touch [path to file] -f - Создать пустой файл, если уже существует с таким названием");
             Console.WriteLine("rm [path to file] - Удалить файл");
-            Console.WriteLine("rm [path to file] -rf - Удалить файл с содержимым внутри, если он непустой");
+            Console.WriteLine("rm [path to file] -f - Удалить файл с содержимым внутри, если он непустой");
             Console.WriteLine("cat [path to file] - Вывести содержание файла");
-            Console.WriteLine("vim [path to file] - Редактировать файл");
+            Console.WriteLine("vim [path to file] - Редактировать файл. Escape - выйти из редактирования файла, изменения сохранятся");
             Console.WriteLine("tree [path to directory] - Вывести дерево");
             Console.WriteLine("tree [path to directory] -depth=value - Вывести дерево, value - глубина (если не введено, то depth = 2)");
             Console.ResetColor();
@@ -173,7 +173,7 @@ namespace lab_12_10_22.Managers
                     if (args.Length > 0)
                     {
                         string path = Path.Combine(CurrentDirectory.FullName, StringHelper.RemoveFlags(string.Join(" ", args)));
-                        FileManager.RemoveFile(path, flags.ContainsKey(Flag.rf));
+                        FileManager.RemoveFile(path, flags.ContainsKey(Flag.f));
                     }
                     else
                         throw new Exception("Имя файла не введено.");
@@ -219,12 +219,10 @@ namespace lab_12_10_22.Managers
             }
             catch (UnauthorizedAccessException)
             {
-                Console.WriteLine(Environment.NewLine);
                 PrintError("Нет доступа к папке или файлу.");
             }
             catch (Exception e)
             {
-                Console.WriteLine(Environment.NewLine);
                 PrintError(e.Message);
             }
             Print();

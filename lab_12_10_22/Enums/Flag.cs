@@ -9,6 +9,7 @@ namespace lab_12_10_22.Enums
     public enum Flag
     {
         depth,
-        rf
+        rf,
+        f
     }
 }

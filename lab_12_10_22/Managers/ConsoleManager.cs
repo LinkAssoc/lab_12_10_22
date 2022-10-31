@@ -16,7 +16,7 @@ namespace lab_12_10_22.Managers
         public static void Print(string input = "")
         {
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write($"[{Environment.UserName}] {CurrentDirectory.FullName} > ");
+            Console.Write($"[{Environment.UserName}] {StringHelper.FormatPath(CurrentDirectory.FullName)} > ");
             Console.ResetColor();
             Console.Write(input);
         }
@@ -25,6 +25,29 @@ namespace lab_12_10_22.Managers
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(error);
+            Console.ResetColor();
+        }
+
+        public static void PrintHelp()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("-----HELP-----");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("cd [path] - Переход по папкам (Нажимая таб, вы используете помощник построения пути)");
+            Console.WriteLine("ls - Вывод содержания текущей папки с дополнительной информацией");
+            Console.WriteLine("clear - Очистить консоль");
+            Console.WriteLine("mkdir [path to directory] - Создать папку");
+            Console.WriteLine("mkdir [path to directory] -rf - Создать папку / пересоздать пустую папку, если уже существует с таким названием");
+            Console.WriteLine("rmdir [path to directory] - Удалить папку");
+            Console.WriteLine("rmdir [path to directory] -rf - Удалить папку / удалить папку с содержимым внутри, если она непустая");
+            Console.WriteLine("touch [path to file] - Создать файл");
+            Console.WriteLine("touch [path to file] -f - Создать пустой файл, если уже существует с таким названием");
+            Console.WriteLine("rm [path to file] - Удалить файл");
+            Console.WriteLine("rm [path to file] -rf - Удалить файл с содержимым внутри, если он непустой");
+            Console.WriteLine("cat [path to file] - Вывести содержание файла");
+            Console.WriteLine("vim [path to file] - Редактировать файл");
+            Console.WriteLine("tree [path to directory] - Вывести дерево");
+            Console.WriteLine("tree [path to directory] -depth=value - Вывести дерево, value - глубина (если не введено, то depth = 2)");
             Console.ResetColor();
         }
 
@@ -44,130 +67,7 @@ namespace lab_12_10_22.Managers
                         if (inputString.ToLower().StartsWith("cd"))
                         {
                             string path = StringHelper.FormatPath(StringHelper.RemoveFlags(StringHelper.RemoveCommand(inputString)));
-                            if (path.Length == 0)
-                            {
-                                var di = new DirectoryInfo(CurrentDirectory.FullName);
-                                var diChildren = di.GetDirectories();
-                                Console.WriteLine(Environment.NewLine);
-                                if (diChildren.Length > 0)
-                                {
-                                    Console.WriteLine("Возможные папки:");
-                                    foreach (var directoryInfo in diChildren)
-                                    {
-                                        Console.WriteLine(directoryInfo.Name);
-                                    }
-                                }
-                                else
-                                    Console.WriteLine("Не обнаружено папок.");
-                                Print(inputString);
-                            } else if (path[^1] == '/')
-                            {
-                                var diRelative = new DirectoryInfo(Path.Combine(CurrentDirectory.FullName, path));
-                                var diAbsolute = new DirectoryInfo(path);
-                                var di = diRelative;
-                                if (!diRelative.Exists)
-                                {
-                                    di = diAbsolute;
-                                }
-                                Console.WriteLine(Environment.NewLine);
-                                var diChildren = di.GetDirectories();
-                                if (diChildren.Length > 0)
-                                {
-                                    Console.WriteLine("Возможные папки:");
-                                    foreach (var directoryInfo in diChildren)
-                                    {
-                                        Console.WriteLine(directoryInfo.Name);
-                                    }
-                                }
-                                else
-                                    Console.WriteLine("Не обнаружено папок.");
-                                Print(inputString);
-                            }
-                            else
-                            {
-                                if (path.Contains('/'))
-                                {
-                                    string[] pathParts = path.Split('/');
-                                    string directoryNamePart = pathParts[^1];
-                                    string pathBeforeDirectory = string.Join('/', pathParts[0..(pathParts.Length - 1)]);
-                                    var diRelative = new DirectoryInfo(Path.Combine(CurrentDirectory.FullName, pathBeforeDirectory));
-                                    var diAbsolute = new DirectoryInfo(pathBeforeDirectory);
-                                    var di = diRelative;
-                                    if (!diRelative.Exists)
-                                    {
-                                        di = diAbsolute;
-                                    }
-                                    var diChildren = di.GetDirectories();
-                                    List<DirectoryInfo> matches = new List<DirectoryInfo>();
-                                    foreach (var directoryInfo in diChildren)
-                                    {
-                                        if (directoryInfo.Name.ToLower().StartsWith(directoryNamePart.ToLower()))
-                                        {
-                                            matches.Add(directoryInfo);
-                                        }
-                                    }
-                                    if (matches.Count == 0)
-                                    {
-                                        Console.WriteLine(Environment.NewLine + "Не обнаружено совпадений." + Environment.NewLine);
-                                        Print(inputString);
-                                    }
-                                    else if (matches.Count == 1)
-                                    {
-                                        string inputAddition = matches[0].Name[directoryNamePart.Length..matches[0].Name.Length];
-                                        inputString += inputAddition;
-                                        currentIndex += inputAddition.Length;
-                                        Console.WriteLine(Environment.NewLine);
-                                        Print(inputString);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine(Environment.NewLine + "Возможные папки:");
-                                        foreach (var directoryInfo in matches)
-                                        {
-                                            Console.WriteLine(directoryInfo.Name);
-                                        }
-                                        Print(inputString);
-                                    }
-                                }
-                                else
-                                {
-                                    string[] pathParts = StringHelper.FormatPath(Path.Combine(CurrentDirectory.FullName, path)).Split('/');
-                                    string directoryNamePart = pathParts[^1];
-                                    string pathBeforeDirectory = string.Join('/', pathParts[0..(pathParts.Length - 1)]);
-                                    var di = new DirectoryInfo(pathBeforeDirectory);
-                                    var diEnum = di.EnumerateDirectories();
-                                    List<DirectoryInfo> matches = new List<DirectoryInfo>();
-                                    foreach (var directoryInfo in diEnum)
-                                    {
-                                        if (directoryInfo.Name.ToLower().StartsWith(directoryNamePart.ToLower()))
-                                        {
-                                            matches.Add(directoryInfo);
-                                        }
-                                    }
-                                    if (matches.Count == 0)
-                                    {
-                                        Console.WriteLine(Environment.NewLine + "Не обнаружено совпадений." + Environment.NewLine);
-                                        Print(inputString);
-                                    }
-                                    else if (matches.Count == 1)
-                                    {
-                                        string inputAddition = matches[0].Name[directoryNamePart.Length..matches[0].Name.Length];
-                                        inputString += inputAddition;
-                                        currentIndex += inputAddition.Length;
-                                        Console.WriteLine(Environment.NewLine);
-                                        Print(inputString);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine(Environment.NewLine + "Возможные папки:");
-                                        foreach (var directoryInfo in matches)
-                                        {
-                                            Console.WriteLine(directoryInfo.Name);
-                                        }
-                                        Print(inputString);
-                                    }
-                                }
-                            }
+                            StringHelper.CdTabFunction(CurrentDirectory, path, ref inputString, ref currentIndex);
                         }
                     }
                     else if (readKeyResult.Key == ConsoleKey.Enter)
@@ -221,7 +121,7 @@ namespace lab_12_10_22.Managers
                     if (args.Length > 0)
                     {
                         string path = Path.Combine(CurrentDirectory.FullName, StringHelper.RemoveFlags(string.Join(" ", args)));
-                        DirectoryManager.CreateDirectory(path, flags.ContainsKey("-rf"));
+                        DirectoryManager.CreateDirectory(path, flags.ContainsKey(Flag.rf));
                     }
                     else
                         throw new Exception("Имя папки не введено.");
@@ -231,7 +131,7 @@ namespace lab_12_10_22.Managers
                     if (args.Length > 0)
                     {
                         string path = Path.Combine(CurrentDirectory.FullName, StringHelper.RemoveFlags(string.Join(" ", args)));
-                        DirectoryManager.RemoveDirectory(path, flags.ContainsKey("-rf"));
+                        DirectoryManager.RemoveDirectory(path, flags.ContainsKey(Flag.rf));
                     }
                     else
                         throw new Exception("Имя папки не введено.");
@@ -241,7 +141,7 @@ namespace lab_12_10_22.Managers
                     if (args.Length > 0)
                     {
                         string path = Path.Combine(CurrentDirectory.FullName, StringHelper.RemoveFlags(string.Join(" ", args)));
-                        FileManager.CreateFile(path, flags.ContainsKey("-rf"));
+                        FileManager.CreateFile(path, flags.ContainsKey(Flag.f));
                     }
                     else
                         throw new Exception("Имя файла не введено.");
@@ -251,7 +151,7 @@ namespace lab_12_10_22.Managers
                     if (args.Length > 0)
                     {
                         string path = Path.Combine(CurrentDirectory.FullName, StringHelper.RemoveFlags(string.Join(" ", args)));
-                        FileManager.RemoveFile(path, flags.ContainsKey("-rf"));
+                        FileManager.RemoveFile(path, flags.ContainsKey(Flag.rf));
                     }
                     else
                         throw new Exception("Имя файла не введено.");
@@ -282,34 +182,30 @@ namespace lab_12_10_22.Managers
                     {
                         string path = StringHelper.RemoveFlags(string.Join(" ", args));
                         int depth = 2;
-                        if (flags.ContainsKey("-depth"))
+                        if (flags.ContainsKey(Flag.depth))
                         {
-                            depth = int.Parse(flags["-depth"]);
+                            depth = int.Parse(flags[Flag.depth]);
                         }
                         DirectoryManager.PrintTree(new DirectoryInfo(path), depth);
                     }
                     else
                         throw new Exception("Имя файла не введено.");
                 }
-                else if (command == "exit")
-                {
-                    return false;
-                }
-                else
-                {
-                    throw new Exception("Неизвестная команда.");
-                }
-                Print();
+                else if (command == "help") PrintHelp();
+                else if (command == "exit") return false;
+                else throw new Exception("Неизвестная команда.");
             }
             catch (UnauthorizedAccessException)
             {
+                Console.WriteLine(Environment.NewLine);
                 PrintError("Нет доступа к папке или файлу.");
             }
             catch (Exception e)
             {
+                Console.WriteLine(Environment.NewLine);
                 PrintError(e.Message);
-                Print();
             }
+            Print();
             return true;
         }
 

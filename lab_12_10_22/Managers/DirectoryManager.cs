@@ -84,5 +84,17 @@ namespace lab_12_10_22.Managers
                 PrintTree(diChild, depth, intendCount + 1);
             }
         }
+
+        public static DirectoryInfo GetDirectoryInfoFromPath(string path, DirectoryInfo currentDirectory)
+        {
+            var diRelative = new DirectoryInfo(Path.Combine(currentDirectory.FullName, path));
+            var diAbsolute = new DirectoryInfo(path);
+            var di = diRelative;
+            if (!diRelative.Exists)
+            {
+                di = diAbsolute;
+            }
+            return di;
+        }
     }
 }

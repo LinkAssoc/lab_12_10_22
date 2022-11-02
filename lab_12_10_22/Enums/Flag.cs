@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace lab_12_10_22.Enums
+﻿namespace lab_12_10_22.Enums
 {
     public enum Flag
     {
-        depth,
-        rf,
-        f
+        Unknown = 0,
+        Depth = 1,
+        Rf = 2,
+        F = 3,
     }
 }

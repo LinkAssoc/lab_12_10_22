@@ -1,11 +1,4 @@
-﻿using lab_12_10_22.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace lab_12_10_22.Managers
+﻿namespace lab_12_10_22.Managers
 {
     public static class DirectoryManager
     {
@@ -13,7 +6,9 @@ namespace lab_12_10_22.Managers
         {
             var directoryInfo = new DirectoryInfo(path);
             if (path.Length == 0)
+            {
                 throw new Exception("Не введен путь.");
+            }
             if (path == "..")
             {
                 if (currentDirectory.Parent == null)
@@ -69,10 +64,15 @@ namespace lab_12_10_22.Managers
             Directory.Delete(path, true);
         }
 
-        public static void PrintTree(DirectoryInfo di, int depth = 10, int intendCount = 0)
+        public static void PrintTree(
+            DirectoryInfo di,
+            int depth = 10,
+            int intendCount = 0)
         {
             if (intendCount == depth)
+            {
                 return;
+            }
             foreach (var diChild in di.EnumerateDirectories())
             {
                 string intend = "";

@@ -1,19 +1,13 @@
 ﻿using lab_12_10_22.Enums;
 using lab_12_10_22.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace lab_12_10_22.Managers
 {
     public static class ConsoleManager
     {
         public static DirectoryInfo CurrentDirectory { get; set; } = new DirectoryInfo(Environment.CurrentDirectory);
-        public static List<string> CommandsHistory { get; set; } = new List<string>();
-        public static int CommandsIndex { get; set; } = -1;
+        private static List<string> commandsHistory = new List<string>();
+        private static int commandsIndex = -1;
 
         public static void Print(string input = "")
         {
@@ -74,8 +68,8 @@ namespace lab_12_10_22.Managers
                     }
                     else if (readKeyResult.Key == ConsoleKey.Enter)
                     {
-                        CommandsHistory.Add(inputString);
-                        CommandsIndex = CommandsHistory.Count - 1;
+                        commandsHistory.Add(inputString);
+                        commandsIndex = commandsHistory.Count - 1;
                         Console.WriteLine();
                         break;
                     }
@@ -90,23 +84,21 @@ namespace lab_12_10_22.Managers
                             currentIndex--;
                         }
                     }
-                    else if (readKeyResult.Key == ConsoleKey.UpArrow)
+                    else if (readKeyResult.Key == ConsoleKey.UpArrow
+                        && commandsIndex > 0
+                        && commandsHistory.Count >= commandsIndex)
                     {
-                        if (CommandsIndex > 0 && CommandsHistory.Count >= CommandsIndex)
-                        {
-                            inputString = CommandsHistoryUp(inputString, ref currentIndex);
-                            Console.WriteLine();
-                            Print(inputString);
-                        }
+                        inputString = CommandsHistoryUp(ref currentIndex);
+                        Console.WriteLine();
+                        Print(inputString);
                     }
-                    else if (readKeyResult.Key == ConsoleKey.DownArrow)
+                    else if (readKeyResult.Key == ConsoleKey.DownArrow
+                        && commandsIndex > 0
+                        && commandsHistory.Count >= commandsIndex + 2)
                     {
-                        if (CommandsIndex > 0 && CommandsHistory.Count >= CommandsIndex + 2)
-                        {
-                            inputString = CommandsHistoryDown(inputString, ref currentIndex);
-                            Console.WriteLine();
-                            Print(inputString);
-                        }
+                        inputString = CommandsHistoryDown(ref currentIndex);
+                        Console.WriteLine();
+                        Print(inputString);
                     }
                     else
                     {
@@ -137,46 +129,57 @@ namespace lab_12_10_22.Managers
                         PrintFileInfo(fi);
                     }
                 }
-                else if (command == "clear") Clear();
+                else if (command == "clear")
+                {
+                    Clear();
+                }
                 else if (command == "mkdir")
                 {
                     if (args.Length > 0)
                     {
                         string path = Path.Combine(CurrentDirectory.FullName, StringHelper.RemoveFlags(string.Join(" ", args)));
-                        DirectoryManager.CreateDirectory(path, flags.ContainsKey(Flag.rf));
+                        DirectoryManager.CreateDirectory(path, flags.ContainsKey(Flag.Rf));
                     }
                     else
+                    {
                         throw new Exception("Имя папки не введено.");
+                    }
                 }
                 else if (command == "rmdir")
                 {
                     if (args.Length > 0)
                     {
                         string path = Path.Combine(CurrentDirectory.FullName, StringHelper.RemoveFlags(string.Join(" ", args)));
-                        DirectoryManager.RemoveDirectory(path, flags.ContainsKey(Flag.rf));
+                        DirectoryManager.RemoveDirectory(path, flags.ContainsKey(Flag.Rf));
                     }
                     else
+                    {
                         throw new Exception("Имя папки не введено.");
+                    }
                 }
                 else if (command == "touch")
                 {
                     if (args.Length > 0)
                     {
                         string path = Path.Combine(CurrentDirectory.FullName, StringHelper.RemoveFlags(string.Join(" ", args)));
-                        FileManager.CreateFile(path, flags.ContainsKey(Flag.f));
+                        FileManager.CreateFile(path, flags.ContainsKey(Flag.F));
                     }
                     else
+                    {
                         throw new Exception("Имя файла не введено.");
+                    }
                 }
                 else if (command == "rm")
                 {
                     if (args.Length > 0)
                     {
                         string path = Path.Combine(CurrentDirectory.FullName, StringHelper.RemoveFlags(string.Join(" ", args)));
-                        FileManager.RemoveFile(path, flags.ContainsKey(Flag.f));
+                        FileManager.RemoveFile(path, flags.ContainsKey(Flag.F));
                     }
                     else
+                    {
                         throw new Exception("Имя файла не введено.");
+                    }
                 }
                 else if (command == "cat")
                 {
@@ -186,7 +189,9 @@ namespace lab_12_10_22.Managers
                         FileManager.OutputFile(path);
                     }
                     else
+                    {
                         throw new Exception("Имя файла не введено.");
+                    }
                 }
                 else if (command == "vim")
                 {
@@ -196,7 +201,9 @@ namespace lab_12_10_22.Managers
                         FileManager.EditFile(path);
                     }
                     else
+                    {
                         throw new Exception("Имя файла не введено.");
+                    }
                 }
                 else if (command == "tree")
                 {
@@ -204,18 +211,29 @@ namespace lab_12_10_22.Managers
                     {
                         string path = StringHelper.RemoveFlags(string.Join(" ", args));
                         int depth = 2;
-                        if (flags.ContainsKey(Flag.depth))
+                        if (flags.ContainsKey(Flag.Depth))
                         {
-                            depth = int.Parse(flags[Flag.depth]);
+                            depth = int.Parse(flags[Flag.Depth]);
                         }
                         DirectoryManager.PrintTree(new DirectoryInfo(path), depth);
                     }
                     else
+                    {
                         throw new Exception("Имя файла не введено.");
+                    }
                 }
-                else if (command == "help") PrintHelp();
-                else if (command == "exit") return false;
-                else throw new Exception("Неизвестная команда.");
+                else if (command == "help")
+                {
+                    PrintHelp();
+                }
+                else if (command == "exit")
+                {
+                    return false;
+                }
+                else
+                {
+                    throw new Exception("Неизвестная команда.");
+                }
             }
             catch (UnauthorizedAccessException)
             {
@@ -245,18 +263,18 @@ namespace lab_12_10_22.Managers
             Console.WriteLine("{0,0}{1,40}{2,20}{3,20}", "(FILE)", fi.Name, fi.CreationTime, SizeHelper.FormatSize(fi.Length));
         }
 
-        public static string CommandsHistoryUp(string input, ref int currentIndex)
+        public static string CommandsHistoryUp(ref int currentIndex)
         {
-            CommandsIndex--;
-            input = CommandsHistory[CommandsIndex];
+            commandsIndex--;
+            string input = commandsHistory[commandsIndex];
             currentIndex = input.Length;
             return input;
         }
 
-        public static string CommandsHistoryDown(string input, ref int currentIndex)
+        public static string CommandsHistoryDown(ref int currentIndex)
         {
-            CommandsIndex++;
-            input = CommandsHistory[CommandsIndex];
+            commandsIndex++;
+            string input = commandsHistory[commandsIndex];
             currentIndex = input.Length;
             return input;
         }

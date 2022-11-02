@@ -1,25 +1,22 @@
 ﻿using lab_12_10_22.Enums;
 using lab_12_10_22.Managers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace lab_12_10_22
 {
     public static class StringHelper
     {
-        public static Dictionary<string, Flag> FlagsWithArguments = new Dictionary<string, Flag>();
+        private static readonly IReadOnlyDictionary<string, Flag> FlagsWithArguments = 
+            new Dictionary<string, Flag>() 
+            { 
+                { "depth", Flag.Depth } 
+            };
 
-        public static Dictionary<string, Flag> FlagsWithoutArguments = new Dictionary<string, Flag>();
-
-        public static void InitializeFlagsDictionaries()
-        {
-            FlagsWithArguments.Add("depth", Flag.depth);
-            FlagsWithoutArguments.Add("rf", Flag.rf);
-            FlagsWithoutArguments.Add("f", Flag.f);
-        }
+        private static readonly IReadOnlyDictionary<string, Flag> FlagsWithoutArguments =
+            new Dictionary<string, Flag>()
+            {
+                { "rf", Flag.Rf },
+                { "f", Flag.F }
+            };
 
         public static string RemoveFlags(string str)
         {
@@ -68,7 +65,9 @@ namespace lab_12_10_22
             {
                 string arg = inputArray[i][1..inputArray[i].Length];
                 if (!inputArray[i].StartsWith('-'))
+                {
                     continue;
+                }
                 if (arg.Contains('=') && FlagsWithArguments.ContainsKey(arg.Split('=')[0]))
                 {
                     string[] flag = arg.Split('=');
@@ -89,7 +88,9 @@ namespace lab_12_10_22
             {
                 string arg = input[i][1..input[i].Length];
                 if (!input[i].StartsWith('-'))
+                {
                     continue;
+                }
                 if (arg.Contains('=') && FlagsWithArguments.ContainsKey(arg.Split('=')[0]))
                 {
                     string[] flag = arg.Split('=');
@@ -103,7 +104,11 @@ namespace lab_12_10_22
             return dict;
         }
 
-        public static void CdTabFunction(DirectoryInfo currentDirectory, string path, ref string inputString, ref int currentIndex)
+        public static void CdTabFunction(
+            DirectoryInfo currentDirectory,
+            string path,
+            ref string inputString,
+            ref int currentIndex)
         {
             if (path.Length == 0)
             {
@@ -119,7 +124,9 @@ namespace lab_12_10_22
                     }
                 }
                 else
+                {
                     Console.WriteLine("Не обнаружено папок.");
+                }
                 ConsoleManager.Print(inputString);
             }
             else if (path[^1] == '/')
@@ -136,7 +143,9 @@ namespace lab_12_10_22
                     }
                 }
                 else
+                {
                     Console.WriteLine("Не обнаружено папок.");
+                }
                 ConsoleManager.Print(inputString);
             }
             else

@@ -1,5 +1,4 @@
 ﻿using lab_12_10_22.Managers;
-using System;
 
 namespace lab_12_10_22
 {
@@ -7,7 +6,6 @@ namespace lab_12_10_22
     {
         static void Main(string[] args)
         {
-            StringHelper.InitializeFlagsDictionaries();
             ConsoleManager.Print();
             bool toContinue = true;
             while (toContinue)

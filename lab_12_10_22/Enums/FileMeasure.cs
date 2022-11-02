@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace lab_12_10_22.Enums
+﻿namespace lab_12_10_22.Enums
 {
     enum FileMeasure
     {
-        B,
-        KB,
-        MB,
-        GB,
-        TB
+        Unknown = 0,
+        B = 1,
+        KB = 2,
+        MB = 3,
+        GB = 4,
+        TB = 5,
     }
 }
